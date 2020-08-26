@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: web-app
-          image: mozmut/simple-webapp:8
+          image: mozmut/simple-webapp:latest
           ports:
             - containerPort: 8090
 
