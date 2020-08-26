@@ -1,0 +1,34 @@
+If you like to build and push docker image you need to create jenkins pipeline job with script below
+But fist of all need to be sure that you've installed "Docker" and "Docker Pipeline" plugin.
+
+pipeline {
+  environment {
+    registry = "YOUR DOCKERHUB REPOSITORY"
+    registryCredential = 'dockerhub'
+  }
+  agent any
+  stages {
+      stage('Cloning Git') {
+      steps {
+        git 'https://github.com/mozmut/simple-webapp.git'
+      }
+    }
+   stage('Building image') {
+      steps{
+        script {
+          dockerImage = docker.build registry
+        }
+      }
+    }
+    stage('Deploy Image') {
+      steps{
+        script {
+          docker.withRegistry( '', registryCredential ) {
+            dockerImage.push()
+          }
+        }
+      }
+    }
+  }
+}
+

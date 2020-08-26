@@ -42,7 +42,7 @@ Need to start minikube kubernetes cluster
 
     minikube start
 
-Wait until minikube cluster starts
+Wait until minikube cluster start
 
 ## Run helm
 
