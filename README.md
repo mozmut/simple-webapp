@@ -1,67 +1,92 @@
-# Simple Web Application
+# Simple Web Application with Kubernetes and Helm
 
-This is a simple web application using [Python Flask](http://flask.pocoo.org/) and [MySQL](https://www.mysql.com/) database. 
-This is used in the demonstration of development of Ansible Playbooks.
+This is a simple web application using [Python Flask](http://flask.pocoo.org/). 
+This is used in the demonstration of development of helm and createing kubernetes pods
   
-  Below are the steps required to get this working on a base linux system.
+  Below are the steps required to get this working on a base macOs system.
   
-  - Install all required dependencies
-  - Install and Configure Database
-  - Start Database Service
-  - Install and Configure Web Server
-  - Start Web Server
+  - Install brew  
+  - Install docker
+  - Install minikube
+  - Install helm
+
+## 1. Install brew
+    
+ Install brew
+    
+     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
    
-## 1. Install all required dependencies
+## 2. Install docker
   
-  Python and its dependencies
+  Install latest version of docker
 
-    apt-get install -y python python-setuptools python-dev build-essential python-pip python-mysqldb
+    $ curl -fsSL https://get.docker.com -o get-docker.sh
+    $ sudo sh get-docker.sh
 
    
-## 2. Install and Configure Database
+## 3. Install minikube
     
- Install MySQL database
+ Install minikube
     
-    apt-get install -y mysql-server mysql-client
+    brew install minikube
 
-## 3. Start Database Service
-  - Start the database service
+## 4. Install Helm
+
+ Install helm
     
-        service mysql start
-
-  - Create database and database users
-        
-        # mysql -u <username> -p
-        
-        mysql> CREATE DATABASE employee_db;
-        mysql> GRANT ALL ON *.* to db_user@'%' IDENTIFIED BY 'Passw0rd';
-        mysql> USE employee_db;
-        mysql> CREATE TABLE employees (name VARCHAR(20));
-        
-  - Insert some test data
-        
-        mysql> INSERT INTO employees VALUES ('JOHN');
+    brew install helm
     
-## 4. Install and Configure Web Server
+## Start minikube cluster
 
-Install Python Flask dependency
+Need to start minikube kubernetes cluster
 
-    pip install flask
-    pip install flask-mysql
+    minikube start
 
-- Copy app.py or download it from source repository
-- Configure database credentials and parameters 
+Wait until minikube cluster starts
 
-## 5. Start Web Server
+## Run helm
 
-Start web server
+Need to change directory to helm charts and run helm command
 
-    FLASK_APP=app.py flask run --host=0.0.0.0
+    $ cd web-app-chart
+    $ helm install --generate-name .
+    NAME: chart-1598449367
+    LAST DEPLOYED: Wed Aug 26 16:42:48 2020
+    NAMESPACE: default
+    STATUS: deployed
+    REVISION: 1
+    TEST SUITE: None
+
     
-## 6. Test
+## Test
 
-Open a browser and go to URL
+Need to test that pods are running
 
-    http://<IP>:5000                            => Welcome
-    http://<IP>:5000/how%20are%20you            => I am good, how about you?
-    http://<IP>:5000/read%20from%20database     => JOHN
+    $ kubectl get pods
+    NAME                                                         READY   STATUS    RESTARTS   AGE
+    chart-1598449367-web-app-chart-deployment-6d856b8cc6-lzddc   1/1     Running   0          11s
+
+    $ kubectl get services
+    NAME                                     TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+    chart-1598449367-web-app-chart-service   NodePort    10.99.109.55   <none>        8090:30008/TCP   45s
+    kubernetes                               ClusterIP   10.96.0.1      <none>        443/TCP          3d17h
+    
+    $ minikube service chart-1598449367-web-app-chart-service
+    |-----------|----------------------------------------|-------------|-------------------------|
+    | NAMESPACE |                  NAME                  | TARGET PORT |           URL           |
+    |-----------|----------------------------------------|-------------|-------------------------|
+    | default   | chart-1598449367-web-app-chart-service |        8090 | http://172.17.0.3:30008 |
+    |-----------|----------------------------------------|-------------|-------------------------|
+    🏃  Starting tunnel for service chart-1598449367-web-app-chart-service.
+    |-----------|----------------------------------------|-------------|------------------------|
+    | NAMESPACE |                  NAME                  | TARGET PORT |          URL           |
+    |-----------|----------------------------------------|-------------|------------------------|
+    | default   | chart-1598449367-web-app-chart-service |             | http://127.0.0.1:54235 |
+    |-----------|----------------------------------------|-------------|------------------------|
+    🎉  Opening service default/chart-1598449367-web-app-chart-service in default browser...
+    ❗  Because you are using a Docker driver on darwin, the terminal needs to be open to run it.
+
+
+Then look up your default browser
+
+    
